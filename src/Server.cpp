@@ -1,3 +1,5 @@
+#include <thread>
+
 #include "Server.hpp"
 
 #define SOCK_INVALID -1
@@ -34,8 +36,36 @@ void Server::start(void)
     while (!m_shutdown)
     {
         sockaddr_in client_addr{};
+        socklen_t client_len = sizeof(client_addr);
+        int client_socket = accept(m_server_socket, (sockaddr *)&client_addr, &client_len);
 
-        socklen_t client_len
+        if (client_socket < 0)
+        {
+            std::cerr << "Failed to accept client connection" << std::endl;
+            continue;
+        }
+
+        std::thread(&Server::handle_client, this, client_socket).detach();
     }
-    
+}
+
+void Server::handle_client(int client_socket)
+{
+    char buffer[1024] = {0};
+
+    int bytes_read = read(client_socket, buffer, sizeof(buffer) - 1);
+    if (bytes_read < 0)
+    {
+        std::cerr << "Failed to read from client" << std::endl;
+        close(client_socket);
+        return;
+    }
+
+    std::string request(buffer);
+    std::cout << "Received: " << request << std::endl;
+
+    std::string response = "+PONG\r\n";
+    send(client_socket, response.c_str(), response.size(), 0);
+
+    close(client_socket);
 }
