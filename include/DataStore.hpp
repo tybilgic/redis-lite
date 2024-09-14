@@ -14,6 +14,8 @@ public:
     std::string get(const std::string &key);
     bool exists(const std::string &key);
     bool del(const std::string &key);
+    int incr(const std::string &key);
+    int decr(const std::string &key);
 
 private:
     struct ValueEntry

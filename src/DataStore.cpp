@@ -49,6 +49,38 @@ bool DataStore::del(const std::string &key)
     return m_store.erase(key) > 0;
 }
 
+int DataStore::incr(const std::string &key)
+{
+    std::lock_guard<std::mutex> lock(m_store_mutex);
+    auto it = m_store.find(key);
+    int value = 0;
+    if (it != m_store.end() &&
+        !is_expired_entry(it->second))
+    {
+        // TODO: handle exceptions i.e not a number, out-of-bound
+        value = std::stoi(it->second.value);
+    }
+    value += 1;
+    m_store[key].value = std::to_string(value);
+    return value;
+}
+
+int DataStore::decr(const std::string &key)
+{
+    std::lock_guard<std::mutex> lock(m_store_mutex);
+    auto it = m_store.find(key);
+    int value = 0;
+    if (it != m_store.end() &&
+        !is_expired_entry(it->second))
+    {
+        // TODO: handle exceptions i.e not a number, out-of-bound
+        value = std::stoi(it->second.value);
+    }
+    value -= 1;
+    m_store[key].value = std::to_string(value);
+    return value;
+}
+
 bool DataStore::is_expired_entry(const ValueEntry &entry) const
 {
     if (!entry.expiry.has_value())

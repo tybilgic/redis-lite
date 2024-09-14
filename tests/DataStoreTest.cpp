@@ -55,3 +55,13 @@ TEST(DataStoreTest, DEL)
     deleted = data_store.del("no-key");
     EXPECT_FALSE(deleted);
 }
+
+TEST(DataStoreTest, INCR_DECR)
+{
+    DataStore data_store;
+    data_store.set("key", "10");
+    int value = data_store.incr("key");
+    EXPECT_EQ(value, 11);
+    value = data_store.decr("key");
+    EXPECT_EQ(value, 10);
+}
