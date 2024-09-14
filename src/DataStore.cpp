@@ -30,6 +30,18 @@ std::string DataStore::get(const std::string &key)
     return "";
 }
 
+bool DataStore::exists(const std::string &key)
+{
+    std::lock_guard<std::mutex> lock(m_store_mutex);
+    auto it = m_store.find(key);
+    if (it != m_store.end() &&
+        !is_expired_entry(it->second))
+    {
+        return true;
+    }
+    return false;
+}
+
 bool DataStore::is_expired_entry(const ValueEntry &entry) const
 {
     if (!entry.expiry.has_value())

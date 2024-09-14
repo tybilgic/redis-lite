@@ -12,6 +12,7 @@ public:
     void set(const std::string &key, const std::string &value,
              std::optional<std::chrono::milliseconds> expire_time = std::nullopt);
     std::string get(const std::string &key);
+    bool exists(const std::string &key);
 
 private:
     struct ValueEntry

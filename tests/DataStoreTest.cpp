@@ -37,3 +37,10 @@ TEST(DataStoreTest, SETWithExpiry)
     EXPECT_EQ(value, "");
 }
 
+TEST(DataStoreTest, EXISTS)
+{
+    DataStore data_store;
+    data_store.set("key", "value");
+    EXPECT_TRUE(data_store.exists("key"));
+    EXPECT_FALSE(data_store.exists("no-key"));
+}
