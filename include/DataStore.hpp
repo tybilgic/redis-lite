@@ -5,6 +5,9 @@
 #include <mutex>
 #include <unordered_map>
 #include <string>
+#include <list>
+#include <variant>
+#include <vector>
 
 class DataStore
 {
@@ -17,10 +20,15 @@ public:
     int incr(const std::string &key);
     int decr(const std::string &key);
 
+    int lpush(const std::string &key, const std::string &value);
+    int rpush(const std::string &key, const std::string &value);
+    std::vector<std::string> lrange(const std::string &key, int start, int stop);
+
 private:
     struct ValueEntry
     {
-        std::string value;
+        using ValueType = std::variant<std::string, std::list<std::string>>;
+        ValueType value;
         std::optional<std::chrono::steady_clock::time_point> expiry;
     };
 

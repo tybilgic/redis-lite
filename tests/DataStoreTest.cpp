@@ -65,3 +65,18 @@ TEST(DataStoreTest, INCR_DECR)
     value = data_store.decr("key");
     EXPECT_EQ(value, 10);
 }
+
+TEST(DataStoreTest, ListOperations)
+{
+    DataStore data_store;
+    int size = data_store.lpush("mylist", "two");
+    EXPECT_EQ(size, 1);
+    size = data_store.lpush("mylist", "one");
+    EXPECT_EQ(size, 2);
+    size = data_store.rpush("mylist", "three");
+    EXPECT_EQ(size, 3);
+
+    auto value = data_store.lrange("mylist", 0, -1);
+    std::vector<std::string> expected_list = {"one", "two", "three"};
+    EXPECT_EQ(value, expected_list);
+}
