@@ -44,3 +44,14 @@ TEST(DataStoreTest, EXISTS)
     EXPECT_TRUE(data_store.exists("key"));
     EXPECT_FALSE(data_store.exists("no-key"));
 }
+
+TEST(DataStoreTest, DEL)
+{
+    DataStore data_store;
+    data_store.set("key", "value");
+    bool deleted = data_store.del("key");
+    EXPECT_TRUE(deleted);
+    EXPECT_FALSE(data_store.exists("key"));
+    deleted = data_store.del("no-key");
+    EXPECT_FALSE(deleted);
+}
