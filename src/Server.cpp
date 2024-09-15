@@ -4,7 +4,7 @@
 
 #define SOCK_INVALID -1
 
-Server::Server(int port) : m_port(port)
+Server::Server(int port) : m_port(port), m_shutdown(false)
 {
     m_server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (m_server_socket == SOCK_INVALID)
@@ -41,12 +41,22 @@ void Server::start(void)
 
         if (client_socket < 0)
         {
-            std::cerr << "Failed to accept client connection" << std::endl;
+            if (!m_shutdown)
+            {
+                std::cerr << "Failed to accept client connection" << std::endl;
+            }
             continue;
         }
 
         std::thread(&Server::handle_client, this, client_socket).detach();
     }
+}
+
+void Server::stop()
+{
+    m_shutdown = true;
+
+    close(m_server_socket);
 }
 
 void Server::handle_client(int client_socket)
