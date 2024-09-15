@@ -24,6 +24,9 @@ public:
     int rpush(const std::string &key, const std::string &value);
     std::vector<std::string> lrange(const std::string &key, int start, int stop);
 
+    bool save(const std::string &filename);
+    bool load(const std::string &filename);
+
 private:
     struct ValueEntry
     {

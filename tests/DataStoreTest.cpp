@@ -80,3 +80,20 @@ TEST(DataStoreTest, ListOperations)
     std::vector<std::string> expected_list = {"one", "two", "three"};
     EXPECT_EQ(value, expected_list);
 }
+
+TEST(DataStoreTest, SaveAndLoad)
+{
+    DataStore data_store;
+    data_store.set("key1", "value1");
+    data_store.set("key2", "value2", std::chrono::seconds(5));
+
+    bool saved = data_store.save("data.rdb");
+    EXPECT_TRUE(saved);
+
+    DataStore new_store;
+    bool loaded = new_store.load("data.rdb");
+    EXPECT_TRUE(loaded);
+
+    EXPECT_EQ(new_store.get("key1"), "value1");
+    EXPECT_EQ(new_store.get("key2"), "value2");
+}
