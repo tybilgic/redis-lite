@@ -1,4 +1,7 @@
 #include <thread>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
 
 #include "Server.hpp"
 
@@ -10,6 +13,12 @@ Server::Server(int port) : m_port(port), m_shutdown(false)
     if (m_server_socket == SOCK_INVALID)
     {
         throw std::runtime_error("Failed to create server socket.");
+    }
+
+    int opt = 1;
+    if (setsockopt(m_server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    {
+        throw std::runtime_error("Failed to set socket options.");
     }
 
     sockaddr_in server_addr{};
@@ -31,32 +40,55 @@ Server::Server(int port) : m_port(port), m_shutdown(false)
 
 void Server::start(void)
 {
-    std::cout << "Server started on port" << m_port << std::endl;
+    std::cout << "Server started on port " << m_port << std::endl;
+
+    fd_set read_fds;
+    timeval timeout;
 
     while (!m_shutdown)
     {
-        sockaddr_in client_addr{};
-        socklen_t client_len = sizeof(client_addr);
-        int client_socket = accept(m_server_socket, (sockaddr *)&client_addr, &client_len);
+        FD_ZERO(&read_fds);
+        FD_SET(m_server_socket, &read_fds);
+        int max_fd = m_server_socket;
 
-        if (client_socket < 0)
+        timeout.tv_sec = 1;
+        timeout.tv_usec = 0;
+
+        int res = select(max_fd + 1, &read_fds, nullptr, nullptr, &timeout);
+
+        if (res < 0 && errno != EINTR)
         {
-            if (!m_shutdown)
-            {
-                std::cerr << "Failed to accept client connection" << std::endl;
-            }
-            continue;
+            std::cerr << "Select error" << std::endl;
+            break;
         }
 
-        std::thread(&Server::handle_client, this, client_socket).detach();
+        if (res > 0)
+        {
+            if (FD_ISSET(m_server_socket, &read_fds))
+            {
+                sockaddr_in client_addr{};
+                socklen_t client_len = sizeof(client_addr);
+                int client_socket = accept(m_server_socket, (sockaddr *)&client_addr, &client_len);
+
+                if (client_socket >= 0)
+                {
+                    std::thread(&Server::handle_client, this, client_socket).detach();
+                }
+                else
+                {
+                    std::cerr << "Failed to accept client connection" << std::endl;
+                }
+            }
+        }
     }
+
+    close(m_server_socket);
+    std::cout << "Server thread stopped." << std::endl;
 }
 
 void Server::stop()
 {
     m_shutdown = true;
-
-    close(m_server_socket);
 }
 
 void Server::handle_client(int client_socket)
