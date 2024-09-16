@@ -11,7 +11,8 @@ include_directories(include)
 set(CORE_SOURCES
     src/DataStore.cpp
     src/Server.cpp
-    src/RESPString.cpp)
+    src/RESPString.cpp
+    src/RESPParser.cpp)
 
 add_library(redis-lite-core STATIC ${CORE_SOURCES})
 

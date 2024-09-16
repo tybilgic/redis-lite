@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "DataStore.hpp"
+
 class Server
 {
 public:
@@ -16,7 +18,10 @@ public:
 
 private:
     void handle_client(int client_socket);
+    void process_command(int client_socket, const std::vector<std::string> &command);
+
     int m_server_socket{-1};
     int m_port;
     std::atomic<bool> m_shutdown;
+    DataStore m_data_store;
 };

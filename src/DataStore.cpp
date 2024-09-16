@@ -59,8 +59,21 @@ int DataStore::incr(const std::string &key)
     if (it != m_store.end() &&
         !is_expired_entry(it->second))
     {
-        // TODO: handle exceptions i.e not a number, out-of-bound
-        value = std::stoi(std::get<std::string>(it->second.value));
+        if (std::holds_alternative<std::string>(it->second.value))
+        {
+            try
+            {
+                value = std::stoi(std::get<std::string>(it->second.value));
+            }
+            catch (const std::exception &)
+            {
+                throw std::runtime_error("Value is not an integer or out of range");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("wrong type of value");
+        }
     }
     value += 1;
     m_store[key].value = std::to_string(value);
@@ -75,8 +88,21 @@ int DataStore::decr(const std::string &key)
     if (it != m_store.end() &&
         !is_expired_entry(it->second))
     {
-        // TODO: handle exceptions i.e not a number, out-of-bound
-        value = std::stoi(std::get<std::string>(it->second.value));
+        if (std::holds_alternative<std::string>(it->second.value))
+        {
+            try
+            {
+                value = std::stoi(std::get<std::string>(it->second.value));
+            }
+            catch (const std::exception &)
+            {
+                throw std::runtime_error("Value is not an integer or out of range");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("wrong type of value");
+        }
     }
     value -= 1;
     m_store[key].value = std::to_string(value);

@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
 
         while (running)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
             std::cout << "Server is running..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
         server.stop();

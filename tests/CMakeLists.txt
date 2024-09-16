@@ -18,3 +18,7 @@ add_test(NAME DataStoreTests COMMAND DataStoreTests )
 add_executable(RESPStringTests RESPStringTest.cpp)
 target_link_libraries(RESPStringTests PRIVATE ${TEST_LIBRARIES})
 add_test(NAME RESPStringTests COMMAND RESPStringTests)
+
+add_executable(RESPParserTests RESPParserTest.cpp)
+target_link_libraries(RESPParserTests PRIVATE ${TEST_LIBRARIES})
+add_test(NAME RESPParserTests COMMAND RESPParserTests)
